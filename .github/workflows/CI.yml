@@ -1,0 +1,27 @@
+name: CI Build at-caddy2
+
+on:
+  release:
+    types: [published]
+  push:
+    tags:
+    - 'v*'
+  watch:
+    types: [started]
+
+jobs:
+  build:
+    runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        image-name: [at/caddy2]
+        image-version: [latest]
+
+    steps:
+      - uses: actions/checkout@v1
+      - name: Build & Push
+        run: |
+          sudo docker login --username=${{ secrets.ALIYUN_USERNAME }} registry.cn-chengdu.aliyuncs.com --password=${{ secrets.ALIYUN_PASSWORD }}
+          sudo docker build -t ${{ matrix.image-name }}:${{ matrix.image-version }} .
+          sudo docker tag ${{ matrix.image-name }}:${{ matrix.image-version }} registry.cn-chengdu.aliyuncs.com/adamtyn/at-caddy2:${{ matrix.image-version }}
+          sudo docker push registry.cn-chengdu.aliyuncs.com/adamtyn/at-caddy2:${{ matrix.image-version }}
